@@ -6,6 +6,15 @@ game_manager
 {
 	spawn
 	{	
+		// Deathmatch: doors, windows, objectives and flags are removed by
+		// deathmatch_removals at the end of this file.
+		create
+		{
+			classname "info_notnull"
+			scriptname "deathmatch_removals"
+			origin "0 0 0"
+		}
+
 		// Game rules
 		wm_axis_respawntime	30
 		wm_allied_respawntime	30
@@ -618,5 +627,63 @@ platform_mg42
 		setstate platform_mg42_materials default
 		
 		wm_announce	"Allied team has destroyed the Platform MG Nest!"
+	}
+}
+
+
+
+
+
+
+
+deathmatch_removals
+{
+	spawn
+	{
+		// A spawn event runs as soon as its entity is created, while the rest
+		// of the map is still being spawned: wait for every entity to exist.
+		wait 50
+
+		// --- Doors ---
+		delete { scriptname "storage_team_door" }       // func_door_rotating type=5 6x72x108 adoor_m01,ametal_m03
+
+		// --- Gates and scripted doors ---
+		delete { scriptname "storage_wall_mover" }      // script_mover 16x256x132 door_m01aaaaswf,sdoor_m01aaaaswf (mover with door texture)
+
+		// --- Glass windows ---
+		delete { scriptname "main_door_glass" }         // func_explosive type=glass 4x224x48 hp=50 safety_glass
+		delete { model "*12" }                          // func_explosive type=glass 4x56x56 hp=10 window_m03
+		delete { model "*13" }                          // func_explosive type=glass 4x56x56 hp=10 window_m03
+		delete { model "*14" }                          // func_explosive type=glass 4x56x56 hp=10 window_m03
+
+		// --- Objectives ---
+		delete { scriptname "docs" }                    // team_CTF_redflag message=the Supply Documents
+		delete { scriptname "main_door" }               // func_explosive type=metal 8x80x112 adoor_m01 (dynamite objective)
+		delete { scriptname "service_door" }            // func_explosive type=metal 80x8x112 adoor_m01,metal_trim1,safety_glass (dynamite objective)
+		delete { scriptname "storage_wall_explosive" }  // func_explosive type=metal 16x256x136 (dynamite objective)
+		delete { scriptname "transmitter" }             // trigger_flagonly_multiple 188x188x144
+
+		// --- Constructibles (command posts, MG nests, barriers) and their crates ---
+		delete { scriptname "allied_cp" }               // func_constructible 37x138x104
+		delete { scriptname "platform_mg42" }           // func_constructible 88x150x32
+		delete { scriptname "axis_cp" }                 // func_constructible 103x103x104
+		delete { scriptname "allied_cp_closed_model" }  // misc_gamemodel (companion)
+		delete { scriptname "allied_cp_closed" }        // script_mover 38x88x104 (companion)
+		delete { scriptname "platform_mg42_materials" } // misc_gamemodel (companion)
+		delete { model "*29" }                          // func_static 81x82x89 metal_c07a (companion)
+		delete { scriptname "axis_cp_closed_model" }    // misc_gamemodel (companion)
+		delete { scriptname "axis_cp_closed" }          // script_mover 90x89x104 (companion)
+
+		// --- Objective info and command map markers ---
+		delete { scriptname "docs_toi" }                // trigger_objective_info track=the Supply Documents 96x160x64
+		delete { scriptname "docs_cm_marker" }          // misc_commandmap_marker
+		delete { scriptname "main_door_toi" }           // trigger_objective_info track=the Main Door 192x128x112
+		delete { scriptname "allied_cp_toi" }           // trigger_objective_info track=the Allied Command Post 100x184x104
+		delete { scriptname "service_door_toi" }        // trigger_objective_info track=the Service Door 128x192x208
+		delete { scriptname "storage_wall_toi" }        // trigger_objective_info track=the Storage Wall 192x320x160
+		delete { scriptname "platform_mg42_toi" }       // trigger_objective_info track=the Platform MG 124x132x96
+		delete { scriptname "axis_cp_toi" }             // trigger_objective_info track=the Axis Command Post 182x182x104
+		delete { scriptname "transmitter_toi" }         // trigger_objective_info track=the Transmitter 228x228x160
+		delete { scriptname "transmitter_cm_marker" }   // misc_commandmap_marker
 	}
 }

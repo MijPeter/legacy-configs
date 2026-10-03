@@ -1,0 +1,380 @@
+game_manager
+{
+	spawn
+	{
+		// Deathmatch: doors, windows, objectives and flags are removed by
+		// deathmatch_removals at the end of this file.
+		create
+		{
+			classname "info_notnull"
+			scriptname "deathmatch_removals"
+			origin "0 0 0"
+		}
+
+		// Set scenario information
+
+		wm_axis_respawntime		15
+		wm_allied_respawntime		15
+		wm_set_round_timelimit		30
+		wm_number_of_objectives		4
+
+
+		// accum 0 holds status of each flag as a bit
+		// capped = set, not capped = reset
+		accum 0 set 0
+		accum 1 set 0
+
+		// Set the round winner:  0 == AXIS, 1 == ALLIED
+		// Deathmatch: -1 (no winner) counts as a tied score, and the round
+		// never ends on a tie. The gold is deleted, so nobody can win it: give
+		// the round a winner so it ends when the timelimit runs out.
+		wm_setwinner 0
+
+	}
+
+	trigger add_axis_goldbar
+	{
+		accum 0 inc 1
+
+		trigger game_manager axis_secured
+
+		wm_teamvoiceannounce 0 "axis_hq_objective_captured"
+		wm_teamvoiceannounce 1 "allies_hq_objective_captured"
+
+		trigger gold_axis_full_1 show
+		trigger gold_axis_trans_1 hide
+
+		accum 0 abort_if_less_than 2
+
+		trigger gold_axis_full_2 show
+		trigger gold_axis_trans_2 hide
+
+		accum 0 abort_if_less_than 3
+	
+		trigger gold_axis_full_3 show
+		trigger gold_axis_trans_3 hide
+
+		trigger game_manager axis_win				
+	}
+
+	trigger axis_secured
+	{
+		accum 0 trigger_if_equal 1 game-manager axis_secured1
+		accum 0 trigger_if_equal 2 game_manager axis_secured2
+		accum 0 trigger_if_equal 3 game_manager axis_secured3
+	}
+
+	trigger axis_secured1
+	{
+		wm_announce "Axis team has secured the first Gold Crate!"
+	}
+
+	trigger axis_secured2
+	{
+		wm_announce "Axis team has secured the second Gold Crate!"
+	}
+		
+	trigger axis_secured3
+	{
+		wm_announce "Axis team has secured the last Gold Crate!"
+	}
+
+	trigger add_allies_goldbar
+	{
+		accum 1 inc 1
+
+		trigger game_manager allies_secured
+
+		wm_teamvoiceannounce 0 "axis_hq_objective_captured"
+		wm_teamvoiceannounce 1 "allies_hq_objective_captured"
+
+		trigger gold_allies_full_1 show
+		trigger gold_allies_trans_1 hide
+
+		accum 1 abort_if_less_than 2
+
+		trigger gold_allies_full_2 show
+		trigger gold_allies_trans_2 hide
+
+		accum 1 abort_if_less_than 3
+	
+		trigger gold_allies_full_3 show
+		trigger gold_allies_trans_3 hide
+
+		trigger game_manager allies_win					
+	}
+
+	trigger allies_secured
+	{
+		accum 1 trigger_if_equal 1 game_manager allies_secured1
+		accum 1 trigger_if_equal 2 game_manager allies_secured2
+		accum 1 trigger_if_equal 3 game_manager allies_secured3	
+	}
+
+	trigger allies_secured1
+	{
+		wm_announce "Allied team has secured the first Gold Crate!"
+	}
+
+	trigger allies_secured2
+	{
+		wm_announce "Allied team has secured the second Gold Crate!"
+	}
+
+	trigger allies_secured3
+	{
+		wm_announce "Allied team has secured the last Gold Crate!"
+	}
+
+	trigger allies_win
+	{
+		wm_setwinner	1
+
+		wait 1500
+		wm_endround
+	}
+
+	trigger axis_win
+	{
+		wm_setwinner	0
+
+		wait 1500
+		wm_endround
+	}
+}
+
+gold_axis_full_1
+{
+	spawn
+	{
+		setstate gold_axis_full_1 invisible
+	}
+
+	trigger show
+	{
+		setstate gold_axis_full_1 default
+	}
+}
+
+gold_axis_full_2
+{
+	spawn
+	{
+		setstate gold_axis_full_2 invisible
+	}
+
+	trigger show
+	{
+		setstate gold_axis_full_2 default
+	}
+}
+
+gold_axis_full_3
+{
+	spawn
+	{
+		setstate gold_axis_full_3 invisible
+	}
+
+	trigger show
+	{
+		setstate gold_axis_full_3 default
+	}
+}
+
+gold_axis_trans_1
+{
+	spawn
+	{
+		setstate gold_axis_trans_1 default
+	}
+
+	trigger hide
+	{
+		setstate gold_axis_trans_1 invisible
+	}
+}
+
+gold_axis_trans_2
+{
+	spawn
+	{
+		setstate gold_axis_trans_2 default
+	}
+
+	trigger hide
+	{
+		setstate gold_axis_trans_2 invisible
+	}
+}
+
+gold_axis_trans_3
+{
+	spawn
+	{
+		setstate gold_axis_trans_3 default
+	}
+
+	trigger hide
+	{
+		setstate gold_axis_trans_3 invisible
+	}
+}
+
+gold_allies_full_1
+{
+	spawn
+	{
+		setstate gold_allies_full_1 invisible
+	}
+
+	trigger show
+	{
+		setstate gold_allies_full_1 default
+	}
+}
+
+gold_allies_full_2
+{
+	spawn
+	{
+		setstate gold_allies_full_2 invisible
+	}
+
+	trigger show
+	{
+		setstate gold_allies_full_2 default
+	}
+}
+
+gold_allies_full_3
+{
+	spawn
+	{
+		setstate gold_allies_full_3 invisible
+	}
+
+	trigger show
+	{
+		setstate gold_allies_full_3 default
+	}
+}
+
+gold_allies_trans_1
+{
+	spawn
+	{
+		setstate gold_allies_trans_1 default
+	}
+	
+	trigger hide
+	{
+		setstate gold_allies_trans_1 invisible
+	}
+}
+
+gold_allies_trans_2
+{
+	spawn
+	{
+		setstate gold_allies_trans_2 default
+	}
+	
+	trigger hide
+	{
+		setstate gold_allies_trans_2 invisible
+	}
+}
+
+gold_allies_trans_3
+{
+	spawn
+	{
+		setstate gold_allies_trans_3 default
+	}
+	
+	trigger hide
+	{
+		setstate gold_allies_trans_3 invisible
+	}
+}
+
+axis_gold_flag
+{
+	death
+	{
+		trigger game_manager add_axis_goldbar
+	}
+}
+
+allied_gold_flag
+{
+	death
+	{
+		trigger game_manager add_allies_goldbar
+	}
+}
+
+axis_gold_crate
+{
+	spawn
+	{
+		accum 0 set 0 // gold counter
+	}
+
+	trigger stolen
+	{
+		setstate axis_gold_crate invisible
+	}
+
+	trigger secured
+	{
+		setstate axis_gold_crate default
+	}
+
+	trigger returned
+	{
+	}
+}
+
+deathmatch_removals
+{
+	spawn
+	{
+		// A spawn event runs as soon as its entity is created, while the rest
+		// of the map is still being spawned: wait for every entity to exist.
+		wait 50
+
+		// --- Glass windows ---
+		delete { model "*1" }                           // func_explosive type=glass 54x2x52 hp=50 window
+		delete { model "*2" }                           // func_explosive type=glass 2x54x52 hp=50 window
+		delete { model "*3" }                           // func_explosive type=glass 2x54x52 hp=50 window
+		delete { model "*4" }                           // func_explosive type=glass 2x54x52 hp=50 window
+		delete { model "*5" }                           // func_explosive type=glass 2x54x52 hp=50 window
+		delete { model "*6" }                           // func_explosive type=glass 56x56x62 hp=50 window,window_edge
+		delete { model "*7" }                           // func_explosive type=glass 56x56x62 hp=50 window,window_edge
+		delete { model "*8" }                           // func_explosive type=glass 56x56x62 hp=50 window,window_edge
+		delete { model "*9" }                           // func_explosive type=glass 56x56x62 hp=50 window,window_edge
+		delete { model "*10" }                          // func_explosive type=glass 56x56x62 hp=50 window,window_edge
+		delete { model "*11" }                          // func_explosive type=glass 56x56x62 hp=50 window,window_edge
+		delete { model "*12" }                          // func_explosive type=glass 56x56x62 hp=50 window,window_edge
+		delete { model "*13" }                          // func_explosive type=glass 56x56x62 hp=50 window,window_edge
+		delete { model "*14" }                          // func_explosive type=glass 54x2x52 hp=50 window
+
+		// --- Objectives ---
+		delete { scriptname "allies_gold_crate" }       // team_CTF_blueflag
+		delete { scriptname "axis_gold_crate" }         // team_CTF_redflag
+		delete { scriptname "allied_gold_flag" }        // trigger_flagonly_multiple 128x80x32
+		delete { scriptname "axis_gold_flag" }          // trigger_flagonly_multiple 132x80x32
+
+		// --- Objective info and command map markers ---
+		delete { targetname "axis_goldbar_toi" }        // trigger_objective_info track=the axis gold 96x224x96
+		delete { targetname "allies_goldbar_toi" }      // trigger_objective_info track=the allied gold 96x224x96
+		delete { scriptname "goldbars_axis_marker" }    // misc_commandmap_marker
+		delete { scriptname "goldbars_allied_marker" }  // misc_commandmap_marker
+		delete { targetname "axis_gold_storage_toi" }   // trigger_objective_info track=the axis gold storage 200x112x64
+		delete { targetname "goldstorage_axis_marker" } // misc_commandmap_marker
+		delete { targetname "allies_gold_storage_toi" } // trigger_objective_info track=the allied gold storage 192x112x64
+		delete { targetname "goldstorage_allied_marker" } // misc_commandmap_marker
+	}
+}

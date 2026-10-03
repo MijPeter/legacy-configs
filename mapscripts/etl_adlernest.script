@@ -8,6 +8,34 @@ game_manager
 {
 	spawn
 	{
+		// Deathmatch: doors, windows, objectives and flags are removed by
+		// deathmatch_removals at the end of this file.
+		create
+		{
+			classname "info_notnull"
+			scriptname "deathmatch_removals"
+			origin "0 0 0"
+		}
+
+		// Broken health and ammo stands in place of the outer cabinets, which
+		// world_clip hides.
+		create
+		{
+			classname "misc_gamemodel"
+			scriptname "outer_health_broken"
+			model "models/mapobjects/supplystands/stand_health_damaged.md3"
+			origin "1924 1024 -120"
+			angle "180"
+		}
+		create
+		{
+			classname "misc_gamemodel"
+			scriptname "outer_ammo_broken"
+			model "models/mapobjects/supplystands/stand_ammo_damaged.md3"
+			origin "1924 1072 -120"
+			angle "180"
+		}
+
 		wm_axis_respawntime 30
 		wm_allied_respawntime 20
 		wm_number_of_objectives 5
@@ -666,6 +694,10 @@ world_clip
 		setstate spawn_ammo_model invisible			// Disable Allied spawn ammo cabinets
 		setstate spawn_health invisible				// Disable Allied spawn health cabinets
 		setstate spawn_health_model invisible		// Disable Allied spawn health cabinets
+		setstate outer_ammo_trigger invisible		// Disable outer ammo cabinet
+		setstate outer_ammo_model invisible			// Disable outer ammo cabinet
+		setstate outer_health_trigger invisible		// Disable outer health cabinet
+		setstate outer_health_model invisible		// Disable outer health cabinet
 		wait 250
 		globalaccum 2 trigger_if_equal 1 world_clip spawn_cabinets
 	}
@@ -679,5 +711,80 @@ world_clip
 		setstate spawn_health_model default			// Enable Allied spawn health cabinets
 		setstate spawn_ammo_dest invisible			// Hide placeholder
 		setstate spawn_health_dest invisible		// Hide placeholder
+	}
+}
+
+
+
+
+
+
+
+deathmatch_removals
+{
+	spawn
+	{
+		// A spawn event runs as soon as its entity is created, while the rest
+		// of the map is still being spawned: wait for every entity to exist.
+		wait 50
+
+		// --- Doors ---
+		delete { model "*11" }                          // func_door_rotating type=5 6x84x120 metal_trim1,door_m01asml,edelweiss
+		delete { model "*64" }                          // func_door_rotating type=5 6x84x120 metal_trim1,door_m01asml,edelweiss
+		delete { model "*65" }                          // func_door_rotating type=5 6x84x120 metal_trim1,door_m01asml,edelweiss
+		delete { model "*66" }                          // func_door_rotating type=5 88x6x120 metal_trim1,door_m01asml,edelweiss
+		delete { model "*67" }                          // func_door_rotating type=5 84x4x120 metal_trim1,door_m01asml
+
+		// --- Gates and scripted doors ---
+		delete { model "*60" }                          // func_invisible_user 48x56x32 (main gate button)
+		delete { model "*63" }                          // func_invisible_user 56x48x32 (main gate button)
+		delete { scriptname "maindoor_lever_1" }        // script_mover 10x2x9 metal_m04r2 (main gate button lever)
+		delete { scriptname "maindoor_lever_2" }        // script_mover 2x10x9 metal_m04r2 (main gate button lever)
+		delete { scriptname "phasedoor1" }              // script_mover 344x18x184 metal_trim1,edelweiss,mdoor_c03
+		delete { scriptname "phasedoor2" }              // script_mover 18x264x192 metal_trim1,edelweiss,mdoor_c03
+
+		// --- Glass windows ---
+		delete { model "*2" }                           // func_explosive type=glass 220x4x110 hp=2 tramglass2
+		delete { model "*3" }                           // func_explosive type=glass 228x4x110 hp=2 tramglass2
+		delete { model "*4" }                           // func_explosive type=glass 4x156x78 hp=2 tramglass2
+		delete { model "*6" }                           // func_explosive type=glass 8x144x80 hp=2 tramglass2
+		delete { model "*14" }                          // func_explosive type=glass 220x4x110 hp=2 tramglass2
+		delete { model "*47" }                          // func_explosive type=glass 4x92x80 hp=10 tramglass2
+		delete { model "*48" }                          // func_explosive type=glass 4x100x80 hp=10 tramglass2
+		delete { model "*49" }                          // func_explosive type=glass 4x92x80 hp=10 tramglass2
+		delete { model "*50" }                          // func_explosive type=glass 16x4x80 hp=5 tramglass2
+		delete { model "*51" }                          // func_explosive type=glass 16x4x80 hp=5 tramglass2
+
+		// --- Boards, curtains, bars and other thin breakables ---
+		delete { scriptname "debris_2" }                // func_explosive type=metal 8x108x8 hp=25 floor_m4,girder03
+		delete { scriptname "debris_5" }                // func_explosive type=wood 2x112x8 hp=25 wood_m02
+		delete { scriptname "debris_6" }                // func_explosive type=wood 2x72x131 hp=25 wood_m02
+		delete { scriptname "debris_3" }                // func_explosive type=wood 2x57x102 hp=25 wood_m02
+		delete { scriptname "debris_4" }                // func_explosive type=wood 2x57x102 hp=25 wood_m02
+		delete { scriptname "vent_1" }                  // func_explosive type=metal 8x64x72 hp=50 fence_c10
+		delete { scriptname "vent_2" }                  // func_explosive type=metal 64x8x72 hp=50 fence_c10
+
+		// --- Objectives ---
+		delete { scriptname "transmitter_obj" }         // trigger_flagonly_multiple 120x264x152
+		delete { scriptname "documents" }               // team_CTF_redflag message=the documents
+		delete { scriptname "door_controls" }           // func_explosive type=metal 88x144x20 metal_trim1,tug_side,safety_glass (dynamite objective)
+
+		// --- Constructibles (command posts, MG nests, barriers) and their crates ---
+		delete { scriptname "allied_cp" }               // func_constructible 37x138x104
+		delete { scriptname "allied_cp_closed_model" }  // misc_gamemodel (companion)
+		delete { scriptname "allied_cp_closed" }        // script_mover 38x88x104 (companion)
+
+		// --- Objective info and command map markers ---
+		delete { scriptname "transmitter_toi" }         // trigger_objective_info track=the Transmitter 152x304x168
+		delete { targetname "transmitter_cmm" }         // misc_commandmap_marker
+		delete { model "*9" }                           // trigger_objective_info track=the Transmitter 24x16x8
+		delete { scriptname "documents_CMM" }           // misc_commandmap_marker
+		delete { model "*12" }                          // trigger_objective_info track=the documents 92x68x40
+		delete { scriptname "allied_cp_toi" }           // trigger_objective_info track=the Allied CP 88x200x136
+		delete { scriptname "door_contols_toi" }        // trigger_objective_info track=the Door Controls 224x360x136
+
+		// --- Main gate: open it once, its button is gone ---
+		trigger maindoor_left activate
+		trigger maindoor_right activate
 	}
 }

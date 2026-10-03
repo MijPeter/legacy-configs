@@ -6,6 +6,15 @@ game_manager
 {
 	spawn
 	{
+		// Deathmatch: doors, windows, objectives and flags are removed by
+		// deathmatch_removals at the end of this file.
+		create
+		{
+			classname "info_notnull"
+			scriptname "deathmatch_removals"
+			origin "0 0 0"
+		}
+
 		// Game rules
 		wm_axis_respawntime	30
 		wm_allied_respawntime	20
@@ -1353,5 +1362,89 @@ truck_trig
 			// don't allow dynamite at the truck
 			spawnflags 139 // AXIS/ALLIED_OBJECTIVE | TANK | DISABLED
 		}
+	}
+}
+
+
+
+
+
+
+
+deathmatch_removals
+{
+	spawn
+	{
+		// A spawn event runs as soon as its entity is created, while the rest
+		// of the map is still being spawned: wait for every entity to exist.
+		wait 50
+
+		// --- Doors ---
+		delete { scriptname "teamonlydoor1" }           // func_door_rotating type=5 70x16x116 door_m01asml_axis,wood_m16
+		delete { scriptname "teamonlydoor2" }           // func_door_rotating type=5 68x4x116 door_m01asml_axis,wood_m16
+
+		// --- Glass windows ---
+		delete { model "*2" }                           // func_explosive type=glass 56x3x58 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*3" }                           // func_explosive type=glass 56x3x58 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*4" }                           // func_explosive type=glass 3x56x58 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*5" }                           // func_explosive type=glass 3x56x58 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*21" }                          // func_explosive type=glass 30x58x64 hp=5 window_m03
+		delete { model "*22" }                          // func_explosive type=glass 30x58x64 hp=5 window_m03
+		delete { model "*23" }                          // func_explosive type=glass 30x58x64 hp=5 window_m03
+		delete { model "*35" }                          // func_explosive type=glass 3x56x58 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*36" }                          // func_explosive type=glass 3x56x58 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*37" }                          // func_explosive type=glass 3x56x58 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*38" }                          // func_explosive type=glass 4x56x122 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*39" }                          // func_explosive type=glass 3x56x58 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*40" }                          // func_explosive type=glass 3x56x58 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*41" }                          // func_explosive type=glass 4x56x122 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*42" }                          // func_explosive type=glass 56x4x122 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*43" }                          // func_explosive type=glass 56x4x122 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*44" }                          // func_explosive type=glass 56x3x58 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*46" }                          // func_explosive type=glass 3x56x58 hp=10 villwin_c12m_glass,wood_m02
+		delete { model "*58" }                          // func_explosive type=glass 60x2x72 hp=10 villwin_c12m_glass
+		delete { model "*59" }                          // func_explosive type=glass 60x2x72 hp=10 villwin_c12m_glass
+		delete { model "*60" }                          // func_explosive type=glass 60x2x72 hp=10 villwin_c12m_glass
+		delete { model "*61" }                          // func_explosive type=glass 72x4x72 hp=10 villwin_c12m_glass
+		delete { model "*62" }                          // func_explosive type=glass 72x4x72 hp=10 villwin_c12m_glass
+		delete { model "*63" }                          // func_explosive type=glass 60x2x72 hp=10 villwin_c12m_glass
+		delete { model "*74" }                          // func_explosive type=glass 4x56x122 hp=10 villwin_c12m_glass,wood_m02
+
+		// --- Objectives ---
+		delete { targetname "truck_fake" }              // func_explosive 16x16x16 hp=0 (dynamite objective)
+		delete { scriptname "truck_exitpoint" }         // trigger_flagonly_multiple 134x101x136
+		delete { scriptname "radarbox2" }               // team_CTF_redflag message=the East Radar Parts
+		delete { scriptname "maindoor1" }               // func_explosive type=metal 228x10x194 ametal_m01,xmetal_m02_snow (dynamite objective)
+		delete { scriptname "radarbox1" }               // team_CTF_redflag message=the West Radar Parts
+		delete { scriptname "sidedoor1" }               // func_explosive type=metal 140x32x104 wall_c03d,door_m01asml,xmetal_c03 (dynamite objective)
+
+		// --- Constructibles (command posts, MG nests, barriers) and their crates ---
+		delete { targetname "mg42_materials_clip_1" }   // func_static 76x80x85 metal_c07a (MG nest materials)
+		delete { targetname "mg42_materials_clip_2" }   // func_static 76x80x85 metal_c07a (MG nest materials)
+		delete { targetname "mg42_materials_clip_3" }   // func_static 76x80x85 metal_c07a (MG nest materials)
+		delete { scriptname "mg42_clip_3" }             // func_constructible track=mg42_3_track 4x32x32
+		delete { scriptname "mg42_clip_2" }             // func_constructible track=mg42_2_track 7x32x48 ametal_m03
+		delete { scriptname "mg42_clip_1" }             // func_constructible track=mg42_1_track 12x32x48 ametal_m03
+		delete { scriptname "allied_radio_built" }      // func_constructible 132x38x104
+		delete { scriptname "axis_radio_built" }        // func_constructible 132x38x104
+		delete { scriptname "mg42_clip_3_allied" }      // func_constructible track=mg42_3_track 4x32x32
+		delete { scriptname "neutral_radio_closed" }    // script_mover 84x38x104 (companion)
+		delete { scriptname "neutral_radio_closed_model" } // misc_gamemodel (companion)
+
+		// --- Flags ---
+		delete { scriptname "roadbunker" }              // team_WOLF_checkpoint
+
+		// --- Objective info and command map markers ---
+		delete { model "*8" }                           // trigger_objective_info track=the Bunker MG Nest 120x84x68
+		delete { scriptname "truck_trig" }              // trigger_objective_info track=the Escape Truck 341x363x136
+		delete { model "*13" }                          // trigger_objective_info track=the Axis Watchtower MG Nest 80x110x76
+		delete { model "*17" }                          // trigger_objective_info track=the Axis Road MG Nest 120x84x68
+		delete { scriptname "circuitboard2_trigger" }   // trigger_objective_info track=the East Radar Parts 520x464x216
+		delete { scriptname "maindoor1_trig" }          // trigger_objective_info track=the Main Entrance 256x256x236
+		delete { scriptname "circuitboard1_trigger" }   // trigger_objective_info track=the West Radar Parts 464x520x216
+		delete { scriptname "sidedoor1_trig" }          // trigger_objective_info track=the Side Entrance 156x228x160
+		delete { scriptname "commandpost" }             // trigger_objective_info track=the Command Post 146x70x104
+		delete { scriptname "circuit1" }                // misc_commandmap_marker
+		delete { scriptname "circuit2" }                // misc_commandmap_marker
 	}
 }

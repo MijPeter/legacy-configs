@@ -2,6 +2,15 @@ game_manager
 {
 	spawn
 	{
+		// Deathmatch: doors, windows, objectives and flags are removed by
+		// deathmatch_removals at the end of this file.
+		create
+		{
+			classname "info_notnull"
+			scriptname "deathmatch_removals"
+			origin "0 0 0"
+		}
+
 		create {
 			classname "func_fakebrush"
 			origin "959 -865 96"
@@ -2476,4 +2485,77 @@ setstate woodenbarrier invisible
 setstate baumaterial default
 setstate baumaterial_mod default
 }
+}
+
+
+
+
+
+
+
+deathmatch_removals
+{
+	spawn
+	{
+		// A spawn event runs as soon as its entity is created, while the rest
+		// of the map is still being spawned: wait for every entity to exist.
+		wait 50
+
+		// --- Doors ---
+		delete { model "*12" }                          // func_door_rotating 48x2x124 door_c01
+		delete { model "*35" }                          // func_door_rotating 48x2x124 door_c01
+		delete { model "*38" }                          // func_door_rotating type=5 4x80x114 door_m01asml_axis
+		delete { model "*42" }                          // func_door_rotating type=5 4x72x114 door_m01asml,door_m01asml_axis
+		delete { model "*43" }                          // func_door_rotating type=5 4x72x114 door_m01asml,door_m01asml_axis
+
+		// --- Gates and scripted doors ---
+		delete { scriptname "rollerdoor1" }             // script_mover 8x256x204 mdoor_c03
+		delete { scriptname "rollerdoor2" }             // script_mover 8x192x124 mdoor_c03
+		delete { scriptname "rollerdoor3" }             // script_mover 8x192x124 mdoor_c03
+		delete { scriptname "rollerdoor4" }             // script_mover 8x160x168 mdoor_c03
+
+		// --- Glass windows ---
+		delete { model "*7" }                           // func_explosive type=glass 46x46x60 hp=30 cwood_c10,tramglass2
+		delete { model "*8" }                           // func_explosive type=glass 46x46x60 hp=30 cwood_c10,tramglass2
+		delete { model "*13" }                          // func_explosive type=glass 38x38x60 hp=30 cwood_c10,tramglass2
+
+		// --- Objectives ---
+		delete { scriptname "maingate" }                // func_explosive type=metal 224x224x336 heavy_door_01,concrete_m03 (dynamite objective)
+		delete { scriptname "keycard_flag" }            // team_CTF_redflag message=the Keycard
+		delete { scriptname "keycard_cap" }             // trigger_flagonly_multiple 124x124x112
+
+		// --- Constructibles (command posts, MG nests, barriers) and their crates ---
+		delete { scriptname "allied_cp_open" }          // func_constructible track=allied_cp_track 37x134x108
+		delete { scriptname "axis_cp_open" }            // func_constructible track=axis_cp_track 37x134x108
+		delete { scriptname "truck_construct" }         // func_constructible 48x48x44 hp=50
+		delete { scriptname "defense4" }                // func_constructible 280x96x76
+		delete { scriptname "sidedoor" }                // func_constructible 8x84x120 door_c17
+		delete { scriptname "woodenbarrier" }           // func_constructible 159x115x110 wood1b,box_m04a,box_m04a_sd
+		delete { scriptname "defense3" }                // func_constructible 238x215x77
+		delete { scriptname "neutral_cp_closed_model" } // misc_gamemodel (companion)
+		delete { scriptname "neutral_cp_clip" }         // script_mover 46x156x104 (companion)
+		delete { targetname "defense4_materials" }      // misc_gamemodel (companion)
+		delete { targetname "defense3_materials" }      // misc_gamemodel (companion)
+		delete { targetname "defense3_materials_clip" } // misc_constructiblemarker 74x81x87 metal_c07a (companion)
+		delete { targetname "defense4_materials_clip" } // misc_constructiblemarker 82x81x89 metal_c07a (companion)
+
+		// --- Flags ---
+		delete { scriptname "flag1_flag" }              // team_WOLF_checkpoint
+		delete { targetname "defense4_flag" }           // misc_gamemodel (companion)
+		delete { targetname "defense3_flag" }           // misc_gamemodel (companion)
+
+		// --- Objective info and command map markers ---
+		delete { scriptname "maingate_toi" }            // trigger_objective_info track=the Main Gate 432x432x224
+		delete { scriptname "neutral_cp_toi" }          // trigger_objective_info track=the Neutral Command Post 124x256x104
+		delete { scriptname "sidedoor_toi" }            // trigger_objective_info track=the Side Door 64x196x136
+		delete { model "*18" }                          // trigger_objective_info track=The Keycard 72x60x44
+		delete { scriptname "keycard_CMM" }             // misc_commandmap_marker
+		delete { scriptname "truck_build" }             // trigger_objective_info track=the Truck 376x140x148
+		delete { scriptname "defense3_toi" }            // trigger_objective_info track=Truck Barrier #1 152x120x112
+		delete { scriptname "defense4_toi" }            // trigger_objective_info track=Truck Barrier #2 152x128x112
+		delete { scriptname "woodenbarrier_toi" }       // trigger_objective_info track=the Wooden Barrier 187x186x80
+		delete { targetname "generator_cmm1" }          // misc_commandmap_marker
+		delete { model "*45" }                          // trigger_objective_info track=the Generator 24x16x8
+		delete { origin "-1300 1037 300" }              // info_limbo_camera (limbo camera aimed at a deleted objective)
+	}
 }

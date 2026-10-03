@@ -9,6 +9,15 @@ game_manager
 {
 	spawn
 	{
+		// Deathmatch: doors, windows, objectives and flags are removed by
+		// deathmatch_removals at the end of this file.
+		create
+		{
+			classname "info_notnull"
+			scriptname "deathmatch_removals"
+			origin "0 0 0"
+		}
+
 
 		//bani - bug fixes
 		create
@@ -7103,5 +7112,67 @@ axislmsspawns
 	{
 		wait 50
 		remove
+	}
+}
+
+
+
+
+
+
+
+deathmatch_removals
+{
+	spawn
+	{
+		// A spawn event runs as soon as its entity is created, while the rest
+		// of the map is still being spawned: wait for every entity to exist.
+		wait 50
+
+		// --- Glass windows ---
+		delete { model "*24" }                          // func_explosive type=glass 2x99x72 hp=10 tramglass2
+		delete { model "*25" }                          // func_explosive type=glass 2x99x72 hp=10 tramglass2
+		delete { model "*26" }                          // func_explosive type=glass 2x99x72 hp=10 tramglass2
+		delete { model "*27" }                          // func_explosive type=glass 2x99x72 hp=10 tramglass2
+		delete { model "*28" }                          // func_explosive type=glass 24x1x72 hp=10 tramglass2
+		delete { model "*29" }                          // func_explosive type=glass 24x1x72 hp=10 tramglass2
+		delete { model "*38" }                          // func_explosive type=glass 4x56x56 hp=1 window_m03
+		delete { model "*56" }                          // func_explosive type=glass 56x4x56 hp=1 window_m03
+		delete { model "*57" }                          // func_explosive type=glass 56x4x56 hp=1 window_m03
+		delete { model "*58" }                          // func_explosive type=glass 56x4x56 hp=1 window_m03
+		delete { model "*59" }                          // func_explosive type=glass 4x56x56 hp=1 window_m03
+
+		// --- Boards, curtains, bars and other thin breakables ---
+		delete { model "*23" }                          // func_explosive type=wood 2x64x64 hp=20 board_c01
+		delete { model "*39" }                          // func_explosive type=wood 64x2x64 hp=20 board_c01
+
+		// --- Constructibles (command posts, MG nests, barriers) and their crates ---
+		delete { scriptname "panel3" }                  // func_constructible 36x65x80 ametal_m02,metal_m04g2,metal_m04r2
+		delete { scriptname "tank_construct" }          // func_constructible 32x32x32
+		delete { scriptname "fakeobj2" }                // func_constructible 32x32x32
+		delete { scriptname "browning_clip_2" }         // func_constructible 53x142x48 bags1_s2
+		delete { scriptname "axis_radio_built" }        // func_constructible 134x37x104
+		delete { scriptname "allied_radio_built" }      // func_constructible 134x37x104
+		delete { scriptname "browning_clip_1" }         // func_constructible 226x242x42 bags1_s2
+		delete { scriptname "mg42depot_clip_1" }        // func_constructible 226x242x42 bags1_s2
+		delete { scriptname "allied_compost_built" }    // func_constructible 134x37x104
+		delete { scriptname "axis_compost_built" }      // func_constructible 132x37x104
+		delete { targetname "panel3_materials_clip" }   // misc_constructiblemarker 81x92x90 metal_c07a (companion)
+		delete { targetname "panel3_materials" }        // misc_gamemodel (companion)
+		delete { scriptname "neutral_compost_closed_model" } // misc_gamemodel (companion)
+		delete { targetname "browning_materials_clip_2" } // misc_constructiblemarker 81x76x85 metal_c07a (crate clip of a deleted objective)
+		delete { targetname "browning_materials_clip_1" } // misc_constructiblemarker 79x76x85 metal_c07a (crate clip of a deleted objective)
+
+		// --- Flags ---
+		delete { scriptname "depotflag" }               // team_WOLF_checkpoint
+		delete { targetname "panel3_flag" }             // misc_gamemodel (companion)
+
+		// --- Objective info and command map markers ---
+		delete { targetname "browning_2_trigger" }      // trigger_objective_info track=the Track Switch MG Nest 136x176x56
+		delete { targetname "browning_1_trigger" }      // trigger_objective_info track=the Depot Yard MG Nest 88x79x68
+		delete { scriptname "panel3_toi" }              // trigger_objective_info track=the Rail Gun Firing Controls 124x104x128
+		delete { model "*31" }                          // trigger_objective_info track=the First Tug 324x160x140
+		delete { model "*33" }                          // trigger_objective_info track=the Second Tug 324x160x140
+		delete { scriptname "neutral_compost_toi" }     // trigger_objective_info track=the Command Post 184x96x104
 	}
 }

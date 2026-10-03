@@ -3,6 +3,15 @@ game_manager
 {
 	spawn
 	{
+		// Deathmatch: doors, windows, objectives and flags are removed by
+		// deathmatch_removals at the end of this file.
+		create
+		{
+			classname "info_notnull"
+			scriptname "deathmatch_removals"
+			origin "0 0 0"
+		}
+
 		remapshader "models/mapobjects/tanks_sd/mg42turret" "models/mapobjects/tanks_sd/mg42turret_2"
 		
 		remapshaderflush
@@ -1289,7 +1298,7 @@ tank_turret
 		wait 200
 		trigger tank stopfire
 
-		alertentity bank_door1
+		// alertentity bank_door1	// deathmatch: its target is deleted by deathmatch_removals
 		setstate doorframe invisible
 		setstate doorframe_damaged default
 
@@ -1381,7 +1390,7 @@ bank_door2_damaged
 	trigger bankbackboom
 	{
 
-		alertentity bank_door2
+		// alertentity bank_door2	// deathmatch: its target is deleted by deathmatch_removals
 		setstate bank_door2_damaged default
 
 		trigger cpblob allied_spawn
@@ -3614,5 +3623,74 @@ axis_compost_built_model_lms
 	{
 		wait 400
 		remove
+	}
+}
+
+
+
+
+
+
+
+deathmatch_removals
+{
+	spawn
+	{
+		// A spawn event runs as soon as its entity is created, while the rest
+		// of the map is still being spawned: wait for every entity to exist.
+		wait 50
+
+		// --- Doors ---
+		delete { model "*11" }                          // func_explosive type=rock 184x24x208 hp=0 roughbrick02 (bank door 2: wall and side door the tank blows open)
+		delete { model "*52" }                          // func_explosive type=rock 8x72x126 hp=0 door_c05 (bank door 2: wall and side door the tank blows open)
+
+		// --- Gates and scripted doors ---
+		delete { scriptname "spawndoors" }              // script_mover 560x448x176 door_c17 (mover with door texture)
+
+		// --- Boards, curtains, bars and other thin breakables ---
+		delete { scriptname "bank_door1" }              // func_explosive type=wood 128x8x164 hp=0 door_c01
+		delete { scriptname "spawndoor1" }              // func_explosive type=wood 76x8x116 hp=30 door_c17
+		delete { scriptname "spawndoor2" }              // func_explosive type=wood 8x48x120 hp=30 door_c17,wood_m02a
+		delete { scriptname "spawndoor3" }              // func_explosive type=wood 8x48x120 hp=30 door_c17,wood_m02a
+
+		// --- Objectives ---
+		delete { message "The Gold Bars" }              // team_CTF_redflag message=The Gold Bars
+		delete { scriptname "goldbar_holder" }          // trigger_flagonly_multiple 96x88x160
+
+		// --- Constructibles (command posts, MG nests, barriers) and their crates ---
+		delete { scriptname "truck_construct" }         // func_constructible 48x48x44
+		delete { scriptname "tank_construct" }          // func_constructible 48x48x44 hp=50
+		delete { scriptname "defense1" }                // func_constructible 268x260x88 stucco01,ametal_m03,xtrim_cm05
+		delete { scriptname "allied_compost_built" }    // func_constructible 134x37x104
+		delete { scriptname "axis_compost_built" }      // func_constructible 134x37x104
+		delete { scriptname "allied_compost_built_lms" } // func_constructible 134x37x104
+		delete { scriptname "axis_compost_built_lms" }  // func_constructible 134x37x104
+		delete { scriptname "defense3" }                // func_constructible 262x100x72
+		delete { targetname "defense1_materials" }      // misc_gamemodel (companion)
+		delete { targetname "defense1_materials_clip" } // misc_constructiblemarker 81x82x89 metal_c07a (companion)
+		delete { scriptname "neutral_compost_clip" }    // script_mover 138x44x104 (companion)
+		delete { scriptname "neutral_compost_clip_lms" } // script_mover 138x42x104 (companion)
+		delete { scriptname "neutral_compost_closed_clip" } // script_mover 89x43x104 (companion)
+		delete { scriptname "neutral_compost_closed_model" } // misc_gamemodel (companion)
+		delete { scriptname "neutral_compost_closed_model_lms" } // misc_gamemodel (companion)
+		delete { scriptname "neutral_compost_closed_clip_lms" } // script_mover 89x39x104 (companion)
+		delete { targetname "defense3_materials" }      // misc_gamemodel (companion)
+		delete { targetname "defense3_materials_clip" } // misc_constructiblemarker 81x74x87 metal_c07a (companion)
+
+		// --- Flags ---
+		delete { targetname "defense1_flag" }           // misc_gamemodel (companion)
+		delete { targetname "defense3_flag" }           // misc_gamemodel (companion)
+
+		// --- Objective info and command map markers ---
+		delete { scriptname "defense1_toi" }            // trigger_objective_info track=Tank Barrier 160x160x112
+		delete { scriptname "tank_build" }              // trigger_objective_info track=the Tank 412x216x140
+		delete { scriptname "neutral_compost_toi" }     // trigger_objective_info track=the Command Post 184x96x104
+		delete { scriptname "neutral_compost_toi_lms" } // trigger_objective_info track=the Command Post 184x96x104
+		delete { scriptname "bankdoors_toi" }           // trigger_objective_info track=the Bank Doors 224x88x208
+		delete { scriptname "goldbars_toi" }            // trigger_objective_info track=the Gold Bars 120x224x120
+		delete { scriptname "goldbars_cm_marker" }      // misc_commandmap_marker
+		delete { scriptname "bankdoors_cm_marker" }     // misc_commandmap_marker
+		delete { scriptname "truck_build" }             // trigger_objective_info track=the Truck 376x140x140
+		delete { scriptname "defense3_toi" }            // trigger_objective_info track=Truck Barrier 125x137x112
 	}
 }

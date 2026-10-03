@@ -1,0 +1,617 @@
+
+
+game_manager
+{
+	spawn
+	{
+		// Deathmatch: doors, windows, objectives and flags are removed by
+		// deathmatch_removals at the end of this file.
+		create
+		{
+			classname "info_notnull"
+			scriptname "deathmatch_removals"
+			origin "0 0 0"
+		}
+
+		// operation_first_stage: et_operation_b8 with barriers.
+		// Barriers made with /bcorner (deathmatch_squares.lua) go here.
+		create
+		{
+			classname "func_fakebrush"
+			origin "2118 -3639 32"
+			mins "0 0 0"
+			maxs "33 244 256"
+			contents 65536
+		}
+		create
+		{
+			classname "func_fakebrush"
+			origin "2273 -4069 16"
+			mins "0 0 0"
+			maxs "68 15 256"
+			contents 65536
+		}
+		create
+		{
+			classname "func_fakebrush"
+			origin "5506 -3764 -95"
+			mins "0 0 0"
+			maxs "1195 53 256"
+			contents 65536
+		}
+
+		// Game rules
+		wm_axis_respawntime	30
+		wm_allied_respawntime 20		
+		wm_set_round_timelimit 10	
+		wm_number_of_objectives	6
+		// Set Defending Team for SW Mode
+		wm_set_defending_team 0
+
+		// If the round timer expires, the Allied have won, so set the current winning team
+		// Set the round winner:  0 == AXIS, 1 == ALLIED
+		wm_setwinner 0
+		
+		remapshader "models/mapobjects/tanks_sd/churchill_flat"					"models/mapobjects/etl_tanks/churchill_temp"
+		remapshader "models/mapobjects/tanks_sd/bits_l"							"models/mapobjects/etl_tanks/churchill_temp_tracks"
+		remapshader "models/mapobjects/tanks_sd/bits_r"							"models/mapobjects/etl_tanks/churchill_temp_tracks"
+		remapshaderflush
+		
+		//Objectives
+		//1: Steal Docs
+		wm_objective_status 1 1 0
+		wm_objective_status 1 0 0
+		//2: Transmit Docs
+		wm_objective_status 2 1 0
+		wm_objective_status 2 0 0
+		//3: Blow door controls
+		wm_objective_status 3 1 0
+		wm_objective_status 3 0 0
+		//4: Breach side wall
+		wm_objective_status 4 1 0
+		wm_objective_status 4 0 0
+		//5: Destroy side door
+		wm_objective_status 5 1 2
+		wm_objective_status 5 0 1
+		//6: Capture cp
+		wm_objective_status 6 1 0
+		wm_objective_status 6 0 0
+		
+		//main objective is to cap docs
+		wm_set_main_objective 2 1
+		wm_set_main_objective 2 0
+		
+		
+
+	}
+}
+
+documents
+{
+    trigger stolen 
+    {
+		
+    	setstate documents_CMM invisible //HIDE COMMANDMAP MARKER
+		wm_announce "The objective was stolen."
+		wm_objective_status 1 0 1
+	}
+	
+	trigger dropped
+	{
+		wm_announce "The objective was dropped."
+		// *----------------------------------- vo ------------------------------------------*
+		wm_teamvoiceannounce 1 "allies_hq_objective_lost"
+		// *---------------------------------------------------------------------------------*
+		wm_objective_status 1 1 0
+	}
+	
+	trigger returned
+	{
+		setstate documents_CMM default //SHOW COMMANDMAP MARKER
+		wm_announce "The objective was returned."
+	} 
+	
+	trigger captured
+	{
+		wm_setwinner 1
+		wm_objective_status 2 1 1
+		wm_objective_status 2 0 2
+		// *----------------------------------- vo ------------------------------------------*
+		wm_teamvoiceannounce 0 "axis_hq_objective_lost"
+		wm_teamvoiceannounce 1 "allies_hq_objective_captured"
+		wm_announce "Allied team has transmitted the documents!"
+		// *---------------------------------------------------------------------------------*
+		
+		remapshader "models/mapobjects/tanks_sd/churchill_flat"					"models/mapobjects/tanks_sd/churchill_flat"	
+		remapshader "models/mapobjects/tanks_sd/bits_l"							"models/mapobjects/tanks_sd/bits_l"
+		remapshader "models/mapobjects/tanks_sd/bits_r"							"models/mapobjects/tanks_sd/bits_r"	
+		remapshaderflush
+		
+		wait 100
+		wm_endround
+	}
+}
+
+allied_cp
+{
+	spawn
+	{
+		wait 400
+		constructible_class 2
+
+		setstate allied_cp_model invisible
+		setstate allied_cp_destroyed invisible
+		setstate allied_cp_destroyed_model invisible
+		setstate allied_cp_spawns_wobj invisible
+		
+		disablespeaker allied_compost_sound
+	}
+	
+	buildstart
+	{
+		setstate allied_cp_closed_model invisible
+		setstate allied_cp_closed invisible
+		setstate allied_cp_destroyed invisible
+		setstate allied_cp_destroyed_model invisible
+		setstate allied_cp_model underconstruction
+	}
+
+	decayed
+	{
+		setstate allied_cp_closed_model default
+		setstate allied_cp_closed default
+		setstate allied_cp_model invisible
+	}
+
+	built
+	{
+		setstate allied_cp_model default
+		setstate allied_cp default
+
+        // *----------------------------------- vo ------------------------------------------*
+		wm_announce	"Allied Command Post constructed. Charge speed increased!"
+		wm_teamvoiceannounce 0 "axis_hq_compost_constructed_allies"
+		wm_teamvoiceannounce 1 "allies_hq_compost_constructed"
+
+		wm_removeteamvoiceannounce 1 "allies_hq_compost_construct"
+		// *----------------------------------- vo ------------------------------------------*
+
+		setchargetimefactor 1 soldier 0.75
+		setchargetimefactor 1 lieutenant 0.75
+		setchargetimefactor 1 medic 0.75
+		setchargetimefactor 1 engineer 0.75
+		setchargetimefactor 1 covertops 0.75
+		sethqstatus 1 1
+		
+		wm_objective_status 6 0 1
+		wm_objective_status 6 1 2
+
+		setstate allied_cp_spawns_wobj default
+		
+		enablespeaker allied_compost_sound
+		setautospawn    "Command Post"   1
+	}
+
+	death
+	{
+		globalaccum 6 set 0 //ALLIED CP DESTROYED
+		setstate allied_cp_model invisible
+		setstate allied_cp invisible
+		setstate allied_cp_destroyed default
+		setstate allied_cp_destroyed_model default
+      
+		// *----------------------------------- vo ------------------------------------------*    
+		wm_announce "Axis team has destroyed the Allied Command Post!"
+		wm_addteamvoiceannounce 1 "allies_hqt_compost_construc"
+		wm_teamvoiceannounce 1 "allies_hq_compost_damaged"
+		// *----------------------------------- vo ------------------------------------------*
+
+		setchargetimefactor 1 soldier 1
+		setchargetimefactor 1 lieutenant 1
+		setchargetimefactor 1 medic 1
+		setchargetimefactor 1 engineer 1
+		setchargetimefactor 1 covertops 1
+		sethqstatus 1 0
+		
+		wm_objective_status 6 0 0
+		wm_objective_status 6 1 0		
+
+		setstate allied_cp_spawns_wobj invisible
+		
+
+		disablespeaker allied_compost_sound
+	}
+}
+
+
+
+sidedoor
+{
+	spawn
+	{
+		wait 400
+		constructible_class 2	// Satchel
+		setstate fence_materials invisible
+		setstate fence_materials_clip invisible
+		setstate fence_materials_flag invisible
+	}
+
+	built final
+	{
+		setstate fence_materials invisible
+		setstate fence_materials_clip invisible
+		setstate fence_materials_flag invisible
+
+
+		wm_announce "The Side Fence has been constructed."
+		wm_objective_status 5 0 1
+		wm_objective_status 5 1 2
+
+	}
+
+	death
+	{
+		setstate fence_materials default
+		setstate fence_materials_clip default
+		setstate fence_materials_flag default
+
+		wm_announce "The Side Fence has been destroyed."
+		wm_objective_status 5 0 2 
+		wm_objective_status 5 1 1
+
+	}
+
+	trigger remove
+	{
+		setstate sidedoor_toi invisible
+		setstate fence_materials invisible
+		setstate fence_materials_clip invisible
+		setstate fence_materials_flag invisible
+		setstate sidedoor invisible
+		remove
+	}
+}
+
+updoorcp
+{
+	spawn
+	{
+		wait 400
+		constructible_class 2	// Satchel
+		setstate fence_materials invisible
+		setstate fence_materials_clip invisible
+		setstate fence_materials_flag invisible
+	}
+
+	built final
+	{
+		setstate fence_materials invisible
+		setstate fence_materials_clip invisible
+		setstate fence_materials_flag invisible
+
+
+		wm_announce "The Side Fence has been constructed."
+	
+
+	}
+
+	death
+	{
+		setstate fence_materials default
+		setstate fence_materials_clip default
+		setstate fence_materials_flag default
+
+		wm_announce "The Upper CP Door has been destroyed."
+		
+
+	}
+
+	trigger remove
+	{
+		setstate updoorcp_toi invisible
+		setstate fence_materials invisible
+		setstate fence_materials_clip invisible
+		setstate fence_materials_flag invisible
+		setstate updoorcp invisible
+		remove
+	}
+}
+
+
+storage_wall_explosive
+{
+	spawn
+	{
+		wait 300
+		constructible_class 3
+	}
+	
+	death
+	{
+		trigger game_manager sound_alarm
+		
+		trigger storage_wall_mover remove
+		trigger storage_wall_hint remove
+		trigger storage_wall_open remove
+		trigger storage_wall_closed remove
+		
+		
+		wm_announce "Side Wall destroyed!"
+		
+		wm_objective_status 4 0 1
+		wm_objective_status 4 1 2
+
+
+		
+		globalaccum 0 bitset 1				// SIDE GATE IS DESTROYED
+		globalaccum 0 abort_if_bitset 0		// ABORT_IF_MAIN_GATE_DESTROYED
+
+	}
+}
+
+storage_wall_open
+{
+	trigger remove
+	{
+		remove
+	}
+}
+
+storage_wall_closed
+{
+	trigger remove
+	{
+		remove
+	}
+}
+
+storage_wall_hint
+{
+	activate
+	{
+		trigger storage_wall_lever activate
+	}
+	
+	trigger remove
+	{
+		remove
+	}
+}
+
+storage_wall_lever
+// ACCUM 0:	cmd_door_LEVER	(0=CLOSED, 1=OPEN)
+{
+	spawn
+	{
+		wait 200
+		gotomarker storage_wall_lever_up 16 wait
+		gotomarker storage_wall_lever_down 16 wait
+	}
+	
+	trigger activate
+	{
+		setstate storage_wall_hint invisible
+		accum 0 trigger_if_equal 0 storage_wall_lever open		// TRIGGER_IF_CLOSED
+		accum 0 trigger_if_equal 1 storage_wall_lever close		// TRIGGER_IF_OPEN
+	}	
+	
+	trigger close
+	{
+		halt
+		playsound sound/movers/misc/garage_door_start_01.wav  volume 255
+		gotomarker storage_wall_lever_down 16 wait
+		accum 0 set 0	// CLOSED
+		stopsound
+		trigger storage_wall_mover activate
+		wait 1000
+		setstate storage_wall_hint default
+	}
+	
+	trigger open
+	{
+		playsound sound/movers/misc/garage_door_start_01.wav  volume 255
+		gotomarker storage_wall_lever_up 16 wait
+		accum 0 set 1		// OPEN
+		stopsound
+		trigger storage_wall_mover activate
+		globalaccum 4 abort_if_bitset 0
+		wait 1000
+		setstate storage_wall_hint default
+	}
+}
+
+// ACCUM 0:
+//	0=CLOSED
+//	1=OPENING
+//	2=OPEN
+//	3=CLOSING
+storage_wall_mover
+{
+	spawn
+	{
+		wait 200
+		remapshaderflush
+	}
+	
+	trigger activate
+	{
+		accum 0 trigger_if_equal 0 storage_wall_mover open				// IF_CLOSED
+		accum 0 trigger_if_equal 1 storage_wall_mover stop_and_close	// IF_OPENING
+		accum 0 trigger_if_equal 2 storage_wall_mover close				// IF_OPEN
+		accum 0 trigger_if_equal 3 storage_wall_mover stop_and_open		// IF_CLOSING
+	}
+	
+	trigger stop_and_close
+	{
+		halt
+		stopsound
+		playsound sound/movers/misc/big_gate3.wav volume 255
+		wait 1968	// wait for wav to play
+		trigger self close
+	}
+	
+	trigger stop_and_open
+	{
+		halt
+		stopsound
+		playsound sound/movers/misc/big_gate3.wav volume 255
+		wait 1968	// wait for wav to play
+		trigger self open
+	}
+	
+	trigger close
+	{
+		accum 0 set 3	// CLOSING
+
+		playsound sound/movers/misc/big_gate2.wav looping  volume 255
+		gotomarker storage_wall_closed 32 wait
+		accum 0 abort_if_not_equal 3	// ABORT_IF_NOT_CLOSING
+		setstate storage_wall_hint invisible
+		stopsound
+		playsound sound/movers/misc/big_gate3.wav  volume 255
+		wait 1968	// wait for wav to play
+		accum 0 set 0	// CLOSED
+		setstate storage_wall_hint default
+		
+	}
+	
+	trigger open
+	{
+		accum 0 set 1	// OPENING
+	
+		playsound sound/movers/misc/big_gate2.wav looping  volume 255
+		gotomarker storage_wall_open 32 wait
+		accum 0 abort_if_not_equal 1	// ABORT_IF_NOT_OPENING
+		setstate storage_wall_hint invisible
+		stopsound
+		playsound sound/movers/misc/big_gate3.wav  volume 255
+		wait 1968	// wait for wav to play
+		accum 0 set 2	// OPEN
+		setstate storage_wall_hint default
+		
+	}
+	
+	trigger remove
+	{
+		remove
+	}
+}
+
+door_controls
+{
+	spawn
+	{
+		wait 200
+		constructible_class 3
+
+		setstate door_controls_smoke invisible
+	}
+	death
+	{
+
+		setstate door_controls_smoke default
+
+		
+		wm_announce "The Doors are opening!!"
+		
+		trigger phasedoor1 open
+						
+		wm_objective_status 3 0 1		
+		wm_objective_status 3 1 2
+				
+		// *----------------------------------- vo ------------------------------------------*
+		wm_teamvoiceannounce 0 "allies_hq_objective_destroyed"
+
+		
+		// "Construct the command post!" voice over, unless its already been done.
+        globalaccum 6 abort_if_equal 1
+        		
+		wm_teamvoiceannounce 0 "axis_hq_compost_construct"
+		// *---------------------------------------------------------------------------------*
+	}
+}
+
+phasedoor1
+{
+	spawn
+	{
+		wait 200
+		gotomarker phasedoor1_closed 1000
+	}
+	
+	trigger open
+	{
+		wait 500
+		playsound sound/movers/misc/garage_door_start_01.wav
+		wait 400
+		playsound sound/movers/misc/garage_door_loop_01.wav looping forever
+		gotomarker phasedoor1_open 80 wait
+		stopsound
+		playsound sound/movers/misc/garage_door_end_01.wav
+	}
+}
+
+
+deathmatch_removals
+{
+	spawn
+	{
+		// A spawn event runs as soon as its entity is created, while the rest
+		// of the map is still being spawned: wait for every entity to exist.
+		wait 50
+
+		// --- Doors ---
+		delete { model "*19" }                          // func_door_rotating type=5 6x72x116 door_m01asml_axis,ametal_m03
+		delete { model "*27" }                          // func_door_rotating type=5 80x8x113 concrete_m02,door_m01asml_axis
+		delete { model "*35" }                          // func_door_rotating type=5 8x80x113 concrete_m02,door_m01asml_axis
+
+		// --- Gates and scripted doors ---
+		// operation_first_stage keeps phasedoor1 closed (it opens only when the
+		// Door Controls, kept too, are dynamited), the window next to the Door
+		// Controls (*36) and the built Side Fence (sidedoor, needs a satchel).
+		delete { scriptname "storage_wall_mover" }      // script_mover 16x256x132 concrete_m02,door_m01aaaaswf (mover with door texture)
+
+		// --- Glass windows ---
+		delete { model "*1" }                           // func_explosive type=glass 100x4x80 hp=10 tramglass2
+		delete { model "*2" }                           // func_explosive type=glass 100x4x80 hp=10 tramglass2
+		delete { model "*3" }                           // func_explosive type=glass 4x16x80 hp=5 tramglass2
+		delete { model "*12" }                          // func_explosive type=glass 92x4x80 hp=10 tramglass2
+		delete { model "*13" }                          // func_explosive type=glass 172x4x80 hp=10 tramglass2
+		delete { model "*22" }                          // func_explosive type=glass 204x2x89 hp=20 tramglass2
+		delete { model "*23" }                          // func_explosive type=glass 4x56x56 hp=10 window_m03
+		delete { model "*24" }                          // func_explosive type=glass 4x56x56 hp=10 window_m03
+		delete { model "*25" }                          // func_explosive type=glass 4x56x56 hp=10 window_m03
+		delete { model "*26" }                          // func_explosive type=glass 4x56x56 hp=10 window_m03
+		delete { model "*48" }                          // func_explosive type=glass 144x8x104 hp=2 tramglass2
+
+		// --- Boards, curtains, bars and other thin breakables ---
+		delete { model "*6" }                           // func_explosive 2x64x64 hp=15 board_c01
+		delete { model "*7" }                           // func_explosive type=wood 128x4x64 hp=20 board_c03,wood_m01_usat,wood_m12
+		delete { model "*47" }                          // func_explosive 291x4x99 taker,wood_m01_usat,wood_m12
+
+		// --- Objectives ---
+		delete { scriptname "storage_wall_explosive" }  // func_explosive type=metal 16x256x136 (dynamite objective)
+		delete { scriptname "transmitter_obj" }         // trigger_flagonly_multiple 235x97x152
+		delete { scriptname "documents" }               // team_CTF_redflag message=the documents
+
+		// --- Constructibles (command posts, MG nests, barriers) and their crates ---
+		delete { scriptname "allied_cp" }               // func_constructible 37x138x104
+		delete { scriptname "updoorcp" }                // func_constructible 4x96x128 cwood_c10
+		delete { scriptname "allied_cp_closed_model" }  // misc_gamemodel (companion)
+		delete { scriptname "allied_cp_closed" }        // script_mover 38x88x104 (companion)
+
+		// --- Objective info and command map markers ---
+		delete { scriptname "documents_CMM" }           // misc_commandmap_marker
+		delete { model "*28" }                          // trigger_objective_info track=the documents 92x68x40
+		delete { scriptname "transmitter_toi" }         // trigger_objective_info track=the Transmitter 256x122x168
+		delete { scriptname "storage_wall_toi" }        // trigger_objective_info track=the Side Wall 192x304x160
+		delete { scriptname "door_controls_toi" }       // trigger_objective_info track=the Door Controls 219x231x136
+		delete { scriptname "allied_cp_toi" }           // trigger_objective_info track=the Allied CP 88x200x136
+		delete { scriptname "updoorcp_toi" }            // trigger_objective_info track=Upper CP Door 120x96x96
+
+		// The Side Fence (sidedoor) is kept, and a func_constructible errors out
+		// the map without the trigger_objective_info that targets it: keep
+		// sidedoor_toi but hide it, so the fence shows no objective.
+		setstate sidedoor_toi invisible
+	}
+}

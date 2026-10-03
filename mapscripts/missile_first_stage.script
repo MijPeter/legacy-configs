@@ -15,6 +15,23 @@ game_manager
         	origin "0 0 0"
         }
 
+        // missile_first_stage: a copy of missile_b3.script with barriers.
+        // Barriers made with /bcorner (deathmatch_squares.lua) go here.
+
+        // missile_first_stage: the door next to the big main gate (door1), locked (key -1).
+        // Created here: create only works before game_manager's first wait.
+        // deathmatch_removals deletes the original door (key 0, or -2 before it
+        // finished spawning), not this one.
+        create
+        {
+        	classname "func_door_rotating"
+        	model "*7"
+        	origin "478 -948 166"
+        	type "5"
+        	allowteams "axis,cvops"
+        	key "-1"
+        }
+
         //used to track allies spawns
         globalaccum 1 bitreset 1
         globalaccum 1 bitreset 2
@@ -403,7 +420,6 @@ door1
 		stopsound
 
 		playsound sound/movers/misc/big_gate3.wav
-
 	}
 }
 
@@ -429,7 +445,6 @@ door2
 		stopsound
 
 		playsound sound/movers/misc/big_gate3.wav
-
 	}
 }
 
@@ -455,7 +470,6 @@ door3
 		stopsound
 
 		playsound sound/movers/misc/big_gate3.wav
-
 	}
 }
 
@@ -1475,15 +1489,16 @@ deathmatch_removals
 		wait 50
 
 		// --- Doors ---
-		delete { model "*7" }                           // func_door_rotating type=5 76x8x116 door_m01asml,door_m01asml_axis
+		delete { model "*7" key "0" }                   // func_door_rotating type=5 76x8x116 door_m01asml,door_m01asml_axis
+		delete { model "*7" key "-2" }
 		delete { model "*59" }                          // func_door_rotating type=5 4x88x112 door_m01asml_axis
 		delete { model "*60" }                          // func_door_rotating type=5 4x88x112 door_m01asml_axis
 		delete { model "*61" }                          // func_door_rotating type=5 76x8x112 door_m01asml_axis,metal_m04dg
 		delete { model "*62" }                          // func_door_rotating type=5 4x96x114 door_m01asml,door_m01asml_axis
 
 		// --- Gates and scripted doors ---
-		delete { scriptname "door1" }                   // script_mover 496x32x188 metal_c07a,mdoor_c03
-		delete { scriptname "door2" }                   // script_mover 176x16x152 metal_c07a,mdoor_c03
+		// missile_first_stage keeps the two main gates (door1, door2) and the Door
+		// Control that opens them (doors): they close off the first stage area.
 		delete { scriptname "gate" }                    // script_mover 216x16x156 ametal_m02,ametal_m03
 		delete { scriptname "gate2" }                   // script_mover 16x128x128 ametal_m02,ametal_m03
 		delete { scriptname "door3" }                   // script_mover 324x16x190 metal_c07a,mdoor_c03
@@ -1540,7 +1555,6 @@ deathmatch_removals
 		delete { scriptname "powersupply" }             // team_CTF_redflag message=The Gate Power Supply
 		delete { scriptname "rocketcontrol" }           // team_CTF_redflag message=The Rocket Control
 		delete { scriptname "powersupply_exit" }        // trigger_flagonly_multiple 32x112x128
-		delete { scriptname "doors" }                   // func_explosive type=5 144x68x64 metal_c07a,panel_m01_light (dynamite objective)
 		delete { scriptname "rocketcontrol_exit" }      // trigger_flagonly_multiple 114x110x128
 
 		// --- Constructibles (command posts, MG nests, barriers) and their crates ---

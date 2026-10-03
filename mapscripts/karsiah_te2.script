@@ -2,6 +2,15 @@ game_manager
 {
 	spawn
 	{
+		// Deathmatch: doors, windows, objectives and flags are removed by
+		// deathmatch_removals at the end of this file.
+		create
+		{
+			classname "info_notnull"
+			scriptname "deathmatch_removals"
+			origin "0 0 0"
+		}
+
 		create
         {
 	        scriptName "back_spawn_roof_patch"
@@ -496,5 +505,48 @@ newobjdoor
 		setstate reifen6 invisible
 		setstate reifen7 invisible
 
+	}
+}
+
+
+
+
+
+
+
+deathmatch_removals
+{
+	spawn
+	{
+		// A spawn event runs as soon as its entity is created, while the rest
+		// of the map is still being spawned: wait for every entity to exist.
+		wait 50
+
+		// --- Doors ---
+		delete { model "*14" }                          // func_door_rotating type=4 8x68x116 siwa_door_axis
+
+		// --- Objectives ---
+		delete { scriptname "southdocs" }               // team_CTF_redflag message=South Documents
+		delete { scriptname "northdocs" }               // team_CTF_redflag message=North Documents
+		delete { scriptname "bigdoor" }                 // func_explosive type=wood 16x120x124 hp=0 door_c17 (dynamite objective)
+		delete { model "*11" }                          // trigger_flagonly_multiple 104x208x96
+
+		// --- Flags ---
+		delete { scriptname "spawnflag" }               // team_WOLF_checkpoint
+
+		// --- Objective info and command map markers ---
+		delete { scriptname "northdocs_cm" }            // trigger_objective_info track=the North Documents 168x136x104
+		delete { scriptname "southdocs_cm" }            // trigger_objective_info track=the South Documents 208x136x112
+		delete { model "*10" }                          // trigger_objective_info track=the Old City Door 240x256x120
+		delete { model "*12" }                          // trigger_objective_info track=the Transmitter 128x304x104
+		delete { model "*13" }                          // trigger_objective_info track=the Old City 176x176x96
+		delete { targetname "cm_southdoc" }             // misc_commandmap_marker
+		delete { targetname "cm_northdoc" }             // misc_commandmap_marker
+		delete { targetname "cm_transmitter" }          // misc_commandmap_marker
+		delete { origin "984 -1424 408" }               // misc_commandmap_marker
+		delete { scriptname "backyard_flag" }           // trigger_objective_info track=blab 40x40x16
+		delete { scriptname "hide_allied_falg" }        // trigger_objective_info track=blab 40x40x16
+		delete { targetname "t5" }                      // misc_commandmap_marker
+		delete { targetname "t6" }                      // misc_commandmap_marker
 	}
 }

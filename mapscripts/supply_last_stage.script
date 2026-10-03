@@ -24,6 +24,152 @@ game_manager {
 			origin "0 0 0"
 		}
 
+		// supply_last_stage: a copy of supply.script with barriers.
+		// Barriers made with /bcorner (deathmatch_squares.lua) go here.
+
+		// supply_last_stage: the door next to the Depot Gate, locked (key -1).
+		// Created here: create only works before game_manager's first wait.
+		// deathmatch_removals deletes the original door (key 0, or -2 before it
+		// finished spawning), not this one.
+		create
+		{
+			classname "func_door_rotating"
+			model "*22"
+			origin "204 -392 60"
+			type "5"
+			allowteams "axis,cvops"
+			key "-1"
+		}
+		create
+		{
+			classname "func_fakebrush"
+			origin "-432 -1614 320"
+			mins "0 0 0"
+			maxs "30 182 256"
+			contents 65536
+		}
+		// long wall at x -489 from the west depot wall (y -1408) on, cut into 3
+		// parts to leave an opening
+		// (y -621 to its end at -311, z 192 to 292) through it
+		create
+		{
+			classname "func_fakebrush"
+			origin "-489 -1408 0"
+			mins "0 0 0"
+			maxs "39 787 608"
+			contents 65536
+		}
+		create
+		{
+			classname "func_fakebrush"
+			origin "-489 -621 0"
+			mins "0 0 0"
+			maxs "39 310 192"
+			contents 65536
+		}
+		create
+		{
+			classname "func_fakebrush"
+			origin "-489 -621 292"
+			mins "0 0 0"
+			maxs "39 310 316"
+			contents 65536
+		}
+		create
+		{
+			classname "func_fakebrush"
+			origin "222 -1648 96"
+			mins "0 0 0"
+			maxs "204 94 288"
+			contents 65536
+		}
+		create
+		{
+			classname "func_fakebrush"
+			origin "866 -1793 160"
+			mins "0 0 0"
+			maxs "50 81 256"
+			contents 65536
+		}
+		// starts 60 units higher, same top
+		create
+		{
+			classname "func_fakebrush"
+			origin "866 -1790 220"
+			mins "0 0 0"
+			maxs "316 92 292"
+			contents 65536
+		}
+		// long wall at x 1794 from the east depot wall (y -1216) on, cut into 3
+		// parts to leave the same opening as the
+		// x -489 wall (y -621 to its end at -311, z 192 to 292)
+		create
+		{
+			classname "func_fakebrush"
+			origin "1794 -1216 0"
+			mins "0 0 0"
+			maxs "70 595 456"
+			contents 65536
+		}
+		create
+		{
+			classname "func_fakebrush"
+			origin "1794 -621 0"
+			mins "0 0 0"
+			maxs "70 310 192"
+			contents 65536
+		}
+		create
+		{
+			classname "func_fakebrush"
+			origin "1794 -621 292"
+			mins "0 0 0"
+			maxs "70 310 164"
+			contents 65536
+		}
+		create
+		{
+			classname "func_fakebrush"
+			origin "1746 -1437 320"
+			mins "0 0 0"
+			maxs "23 190 256"
+			contents 65536
+		}
+		// across the end of both long walls (x -489 to 1864), at y -311 to -291,
+		// with 3 openings at z 192 to 292: x -489 to -152, 494 to 911, 1496 to 1864.
+		// The outer two run to the ends, so they join the long walls' openings.
+		create
+		{
+			classname "func_fakebrush"
+			origin "-489 -311 0"
+			mins "0 0 0"
+			maxs "2353 20 192"
+			contents 65536
+		}
+		create
+		{
+			classname "func_fakebrush"
+			origin "-489 -311 292"
+			mins "0 0 0"
+			maxs "2353 20 316"
+			contents 65536
+		}
+		create
+		{
+			classname "func_fakebrush"
+			origin "-152 -311 192"
+			mins "0 0 0"
+			maxs "646 20 100"
+			contents 65536
+		}
+		create
+		{
+			classname "func_fakebrush"
+			origin "911 -311 192"
+			mins "0 0 0"
+			maxs "585 20 100"
+			contents 65536
+		}
 
                 // mortis - roof clip
                 create
@@ -2192,7 +2338,8 @@ deathmatch_removals
 		// --- Doors ---
 		delete { model "*12" }                          // func_door_rotating type=5 64x8x104 door_m01asml_axis,concrete_m05c
 		delete { model "*13" }                          // func_door_rotating type=5 8x64x104 door_m01asml_axis,concrete_m05c
-		delete { model "*22" }                          // func_door_rotating type=5 64x8x104 door_m01asml_axis,concrete_m05c
+		delete { model "*22" key "0" }                  // func_door_rotating type=5 64x8x104 door_m01asml_axis,concrete_m05c
+		delete { model "*22" key "-2" }
 		delete { model "*23" }                          // func_door_rotating type=5 8x64x96 door_m01asml_axis,concrete_m05c
 		delete { model "*24" }                          // func_door_rotating type=5 8x64x96 door_m01asml_axis,concrete_m05c
 
@@ -2201,10 +2348,9 @@ deathmatch_removals
 		delete { model "*26" }                          // func_explosive type=wood 128x4x128 hp=25 board_c01,board_c03
 
 		// --- Objectives ---
+		// supply_last_stage keeps the Depot Gate and the east and west depot walls
+		// (depotgate, depoteastwall, depotwestwall): they only break to dynamite.
 		delete { scriptname "forwardgate" }             // func_explosive type=metal 32x256x160 mdoor_c03 (dynamite objective)
-		delete { scriptname "depotgate" }               // func_explosive type=metal 256x16x128 mdoor_c03,s_generator01 (dynamite objective)
-		delete { scriptname "depoteastwall" }           // func_explosive type=brick 48x120x120 concrete_c05 (dynamite objective)
-		delete { scriptname "depotwestwall" }           // func_explosive type=brick 48x120x120 concrete_c05 (dynamite objective)
 		delete { scriptname "forwardgate2" }            // func_explosive type=metal 24x112x104 door_m01asml (dynamite objective)
 
 		// --- Constructibles (command posts, MG nests, barriers) and their crates ---
